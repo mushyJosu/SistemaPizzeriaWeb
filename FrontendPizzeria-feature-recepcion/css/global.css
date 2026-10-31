@@ -1,0 +1,124 @@
+:root {
+    --primary: #bd3828;
+    --primary-dark: #962a1e;
+    --secondary: #f3b45a;
+
+    --background: #f7f5f1;
+    --surface: #ffffff;
+
+    --text: #29251f;
+    --text-muted: #77716a;
+
+    --border: #e9e3db;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text);
+    background: var(--background);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+/* Reiniciar márgenes y tamaños */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Página */
+html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+}
+
+/* Elementos de formulario */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* Imágenes adaptables */
+img,
+picture,
+video {
+    display: block;
+    max-width: 100%;
+}
+
+/* Enlaces */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Encabezados */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+    line-height: 1.2;
+}
+
+/* Párrafos */
+p {
+    line-height: 1.6;
+}
+
+/* Accesibilidad: foco visible */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(189, 56, 40, 0.35);
+    outline-offset: 3px;
+}
+
+/* Evitar que hidden sea sobrescrito por otros estilos */
+[hidden] {
+    display: none !important;
+}
+
+/* Campos */
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+/* Botones deshabilitados */
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Contenedor general reutilizable */
+.container {
+    width: min(1200px, 92%);
+    margin-inline: auto;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+    .container {
+        width: 94%;
+    }
+}

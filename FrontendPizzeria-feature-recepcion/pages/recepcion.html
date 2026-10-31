@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel de recepción de pedidos de la pizzería">
+    <title>Recepción | Pizzería</title>
+
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/recepcion.css">
+
+    <script src="../js/recepcion.js" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">SISTEMA DE PEDIDOS</p>
+            <h1>Recepción</h1>
+        </div>
+
+        <span class="role-label">Panel de recepción</span>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <div>
+                <h2>Gestión de pedidos</h2>
+                <p>Registra pedidos, consulta su estado y confirma las entregas.</p>
+            </div>
+
+            <button class="btn btn-primary" id="btnNuevoPedido">
+                + Nuevo pedido
+            </button>
+        </section>
+
+        <p id="estadoConexion" class="connection-banner" role="status" hidden></p>
+
+        <section class="summary" aria-label="Resumen de pedidos activos">
+            <article class="summary-card">
+                <span>Pedidos activos</span>
+                <strong id="totalPedidos">0</strong>
+            </article>
+
+            <article class="summary-card">
+                <span>Registrados</span>
+                <strong id="pedidosRegistrados">0</strong>
+            </article>
+
+            <article class="summary-card">
+                <span>En cocina</span>
+                <strong id="pedidosCocina">0</strong>
+            </article>
+
+            <article class="summary-card">
+                <span>Listos / en reparto</span>
+                <strong id="pedidosListos">0</strong>
+            </article>
+        </section>
+
+        <section class="orders-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Pedidos activos</h2>
+                    <p>Busca un pedido o filtra por su estado. Se actualiza cada 10 segundos.</p>
+                </div>
+                <span id="ultimaActualizacion" class="last-update"></span>
+            </div>
+
+            <div class="filters">
+                <label class="search-field">
+                    Buscar pedido
+                    <input
+                        type="search"
+                        id="buscarPedido"
+                        placeholder="Folio (PED-0001), cliente o producto"
+                    >
+                </label>
+
+                <label>
+                    Estado
+                    <select id="filtroEstado">
+                        <option value="TODOS">Todos los estados</option>
+                        <option value="REGISTRADO">Registrados</option>
+                        <option value="EN_COCINA">En cocina</option>
+                        <option value="LISTO">Listos</option>
+                        <option value="EN_REPARTO">En reparto</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Pedido</th>
+                            <th>Total</th>
+                            <th>Hora</th>
+                            <th>Tiempo restante</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaPedidos"></tbody>
+                </table>
+            </div>
+
+            <p id="mensajeVacio" class="empty-message" hidden>
+                No se encontraron pedidos.
+            </p>
+        </section>
+    </main>
+
+    <dialog id="dialogNuevoPedido">
+        <form id="formNuevoPedido" class="order-form" novalidate>
+            <div class="dialog-heading">
+                <div>
+                    <p class="eyebrow">RECEPCIÓN</p>
+                    <h2>Registrar pedido</h2>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    id="btnCerrarDialogo"
+                    aria-label="Cerrar formulario"
+                >×</button>
+            </div>
+
+            <div class="form-row">
+                <label>
+                    Tipo de pedido
+                    <select id="tipoPedido" required>
+                        <option value="LOCAL">En el local</option>
+                        <option value="PARA_LLEVAR">Para llevar</option>
+                        <option value="DOMICILIO">A domicilio</option>
+                    </select>
+                </label>
+
+                <label>
+                    Método de pago
+                    <select id="metodoPago" required>
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label>
+                    Nombre del cliente
+                    <input
+                        type="text"
+                        id="nombreCliente"
+                        maxlength="100"
+                        required
+                        placeholder="Ej. Andrea López"
+                    >
+                </label>
+
+                <label>
+                    <span>Teléfono <span class="optional" id="telefonoOpcional">(opcional)</span></span>
+                    <input
+                        type="tel"
+                        id="telefonoCliente"
+                        maxlength="20"
+                        placeholder="Ej. 9611234567"
+                    >
+                </label>
+            </div>
+
+            <label id="campoDireccion" hidden>
+                Dirección de entrega
+                <textarea
+                    id="direccionEntrega"
+                    maxlength="255"
+                    rows="2"
+                    placeholder="Calle, número, colonia y referencias"
+                ></textarea>
+            </label>
+
+            <fieldset class="items-fieldset">
+                <legend>Productos</legend>
+
+                <div id="listaItems" class="items-list"></div>
+
+                <button type="button" class="btn btn-secondary btn-small" id="btnAgregarItem">
+                    + Agregar producto
+                </button>
+            </fieldset>
+
+            <p class="order-total">
+                Total: <strong id="totalPedido">$0.00</strong>
+            </p>
+
+            <p id="errorFormulario" class="form-error" role="alert" hidden></p>
+
+            <div class="form-actions">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnCancelar"
+                >
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn btn-primary" id="btnRegistrar">
+                    Registrar pedido
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <template id="plantillaItem">
+        <div class="item-row">
+            <label>
+                Producto
+                <select class="item-producto" required></select>
+            </label>
+
+            <label class="item-cantidad-label">
+                Cant.
+                <input type="number" class="item-cantidad" min="1" max="99" value="1" required>
+            </label>
+
+            <label class="item-nota-label">
+                <span>Nota <span class="optional">(opcional)</span></span>
+                <input type="text" class="item-nota" maxlength="255" placeholder="Ej. orilla de queso">
+            </label>
+
+            <button type="button" class="btn-remove" aria-label="Quitar producto">×</button>
+        </div>
+    </template>
+</body>
+</html>

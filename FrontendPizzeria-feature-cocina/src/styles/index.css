@@ -1,0 +1,238 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #ffd36e;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.tablero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px;
+}
+
+.tablero__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+/* Fila horizontal con scroll lateral */
+.fila {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  align-items: center;
+  scroll-snap-type: x proximity;
+  padding: 0 8px;
+}
+
+.columna {
+  flex: 0 0 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scroll-snap-align: center;
+}
+
+.etiqueta {
+  font-size: 0.85rem;
+  min-height: 1.2em;
+}
+
+/* Tarjeta */
+.card {
+  height: 320px;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: grab;
+  user-select: none;
+  /* permite scroll horizontal, pero el vertical lo manejamos nosotros */
+  touch-action: pan-x;
+  transition: background 0.5s ease, color 0.5s ease, transform 0.25s ease,
+    box-shadow 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.card--drag {
+  transition: background 0.5s ease, color 0.5s ease; /* sin retraso al arrastrar */
+  cursor: grabbing;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Estados / colores */
+.card--pendiente {
+  background: linear-gradient(180deg, #fff7c2 0%, #b8f4fa 100%);
+  color: #111;
+}
+.card--preparacion {
+  background: linear-gradient(180deg, #b8f4fa 0%, #8eeef7 100%);
+  color: #111;
+}
+.card--cocinando {
+  background: linear-gradient(180deg, #b91c1c 0%, #8b1111 100%);
+  color: #fff;
+}
+
+.card__imagen {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  height: 120px;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  overflow: hidden;
+}
+
+.card__imagen img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none; /* para que el swipe no se interrumpa con la imagen */
+  user-select: none;
+}
+
+.card__cliente {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+.card__tipo {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.card__specs {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  font-size: 0.75rem;
+  opacity: 0.85;
+  white-space: pre-line; /* un producto por renglón */
+}
+
+.card__estimado {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.card__estimado--tarde {
+  text-decoration: underline;
+}
+
+/* Sin pedidos */
+.fila__vacia {
+  margin: 0 auto;
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+/* Aviso cuando el backend no responde */
+.aviso-conexion {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #b91c1c;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Selector de tiempo estimado */
+.selector {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+
+.selector__caja {
+  width: min(520px, 100%);
+  padding: 24px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.selector__folio {
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.selector__caja h2 {
+  margin: 4px 0 18px;
+  font-size: 1.25rem;
+}
+
+.selector__opciones {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.selector__opcion,
+.selector__cancelar {
+  min-height: 56px; /* tamaño cómodo para el dedo */
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selector__opcion {
+  background: #b8f4fa;
+  color: #111;
+}
+
+.selector__opcion:active {
+  background: #8eeef7;
+}
+
+.selector__cancelar {
+  width: 100%;
+  background: #eee;
+  color: #333;
+}
+
+.ayuda {
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 8px;
+}
+
+/* Notificación */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+
+.toast--error {
+  background: #b91c1c;
+}
+/* Icono para productos de bebida cuando el pedido solo incluye refresco. */
+.card__producto-icono { font-size: 3.8rem; line-height: 1; user-select: none; }

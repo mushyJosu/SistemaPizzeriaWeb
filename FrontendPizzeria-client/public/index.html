@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Menú y pedidos de Buena Pizza">
+  <title>Buena Pizza | Pide en línea</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/cliente.css">
+  <script src="js/cliente.js" defer></script>
+</head>
+<body>
+  <header class="encabezado">
+    <div class="topbar">
+      <button class="logo" data-vista="menu"><span aria-hidden="true">🍕</span>Buena Pizza</button>
+      <nav class="tabs" aria-label="Secciones">
+        <button class="tab activa" data-vista="menu">Menú</button>
+        <button class="tab" data-vista="carrito">Mi ticket <span class="badge" id="contador">0</span></button>
+        <button class="tab" data-vista="estado">Rastrear pedido</button>
+      </nav>
+      <div class="cuenta-cabecera">
+        <span id="nombreSesion" class="nombre-sesion" hidden></span>
+        <button class="btn-cuenta" id="btnCuenta" type="button">Iniciar sesión</button>
+        <button class="btn-salir" id="btnSalir" type="button" hidden>Cerrar sesión</button>
+      </div>
+    </div>
+    <div class="toldo"></div>
+  </header>
+
+  <main>
+    <!-- Catálogo: se carga desde la API compartida con Recepción y Cocina. -->
+    <section class="vista" id="vista-menu">
+      <div class="portada">
+        <div class="pizarra">
+          <h2>¡Pizza recién<br>salida del horno!</h2>
+          <p>Elige tus productos y sigue el avance real de tu pedido.</p>
+          <button class="btn" data-vista="estado">Rastrear mi pedido</button>
+        </div>
+        <div class="tabla-madera"><div id="heroPizza"></div></div>
+      </div>
+      <div class="contenedor">
+        <div class="catalogo-banner">
+          <span aria-hidden="true">🍕</span>
+          <div>
+            <h3>Menú disponible</h3>
+            <p>Los productos y precios se consultan directamente del catálogo de la pizzería.</p>
+          </div>
+        </div>
+        <p id="mensajeMenu" class="mensaje-menu" role="status" hidden></p>
+        <h2 class="rotulo">Menú del horno</h2>
+        <div id="menu" class="grid-pizzas"></div>
+      </div>
+    </section>
+
+    <!-- Ticket y datos de entrega del cliente autenticado. -->
+    <section class="vista contenedor" id="vista-carrito" hidden>
+      <h2 class="rotulo">Mi ticket</h2>
+      <div class="grid-pago">
+        <div class="ticket-wrap">
+          <aside class="ticket">
+            <h3 class="titulo-caja">Tu comanda</h3>
+            <ul id="resumen" class="resumen-lista"></ul>
+            <div class="totales">
+              <div class="fila-total gran-total"><span>Total</span><span id="total-final">$0.00</span></div>
+            </div>
+            <button class="btn-agregar ancho" data-vista="menu" type="button">Agregar productos</button>
+          </aside>
+        </div>
+
+        <div class="hoja">
+          <h3 class="titulo-caja">Detalles del pedido</h3>
+          <div id="clienteNoSesion" class="aviso-sesion">
+            Para confirmar un pedido necesitas iniciar sesión o crear una cuenta.
+            <button class="btn" id="btnAbrirCuenta" type="button">Iniciar sesión / Registrarme</button>
+          </div>
+          <div id="datosCliente" class="datos-cliente" hidden>
+            <p class="dato-cuenta"><strong id="clienteNombre"></strong><span id="clienteTelefono"></span></p>
+            <form id="formPedido" class="formulario-pago">
+              <div class="input-grupo">
+                <label for="tipoPedido">Tipo de pedido</label>
+                <select id="tipoPedido" required>
+                  <option value="LOCAL">En el local</option>
+                  <option value="PARA_LLEVAR">Para llevar</option>
+                  <option value="DOMICILIO">A domicilio</option>
+                </select>
+              </div>
+              <div class="input-grupo" id="grupoDireccion" hidden>
+                <label for="direccionEntrega">Dirección de entrega</label>
+                <textarea id="direccionEntrega" maxlength="255" placeholder="Calle, número, colonia y referencias"></textarea>
+              </div>
+              <div class="input-grupo">
+                <label for="metodoPago">Método de pago</label>
+                <select id="metodoPago" required>
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TARJETA">Tarjeta</option>
+                  <option value="TRANSFERENCIA">Transferencia</option>
+                </select>
+              </div>
+              <p class="nota-pago">El sistema registra el método elegido; no procesa pagos en línea.</p>
+              <p id="errorPedido" class="msg-error" role="alert" hidden></p>
+              <button type="submit" class="btn-pagar" id="btnPagar">Confirmar pedido</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- El estado mostrado se consulta en MySQL; no se simula con temporizadores locales. -->
+    <section class="vista contenedor" id="vista-estado" hidden>
+      <h2 class="rotulo">Rastrea tu pedido</h2>
+      <div class="ticket-wrap angosto">
+        <div class="ticket">
+          <form id="formRastreo" class="buscador-estado">
+            <input id="folioBuscar" type="text" required placeholder="Número de pedido (Ej. PED-0001)" aria-label="Número de pedido">
+            <button type="submit" class="btn">Buscar</button>
+          </form>
+          <p class="ayuda-rastreo">Inicia sesión con la cuenta que realizó el pedido para consultar su estado.</p>
+          <p id="msgEstadoError" class="msg-error" role="alert" hidden></p>
+          <div id="infoPedidoBox" hidden>
+            <div class="info-cabecera">
+              <h3 id="estadoFolio"></h3>
+              <span id="estadoCliente" class="badge-cliente"></span>
+            </div>
+            <p id="estadoDetalle" class="detalle-txt"></p>
+            <div class="barra-progreso-fondo"><div class="barra-progreso-relleno" id="barra"></div></div>
+            <div class="pasos-iconos" id="pasos">
+              <div class="paso"><i>📥</i>Recibido</div>
+              <div class="paso"><i>👨‍🍳</i>En cocina</div>
+              <div class="paso"><i>🍕</i>Listo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="carrito-barra" id="carritoBarra" hidden>
+    <span>🛒 <b id="barraCant">0</b> productos · <b id="barraTotal">$0.00</b></span>
+    <button class="btn-agregar" data-vista="carrito" type="button">Ver mi ticket</button>
+  </div>
+
+  <!-- Registro e inicio de sesión de clientes. -->
+  <dialog id="dialogCuenta" class="dialog-cuenta">
+    <div class="cuenta-contenido">
+      <div class="cuenta-titulo">
+        <div><p class="eyebrow">BUENA PIZZA</p><h2>Tu cuenta</h2></div>
+        <button type="button" class="btn-cerrar" id="btnCerrarCuenta" aria-label="Cerrar">×</button>
+      </div>
+      <div class="cuenta-tabs">
+        <button type="button" class="cuenta-tab activa" id="tabLogin">Iniciar sesión</button>
+        <button type="button" class="cuenta-tab" id="tabRegistro">Crear cuenta</button>
+      </div>
+      <form id="formLogin" class="formulario-cuenta">
+        <label>Correo electrónico<input id="loginEmail" type="email" maxlength="150" autocomplete="email" required></label>
+        <label>Contraseña<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <p id="errorLogin" class="msg-error" role="alert" hidden></p>
+        <button class="btn-pagar" type="submit" id="btnLogin">Entrar</button>
+      </form>
+      <form id="formRegistro" class="formulario-cuenta" hidden>
+        <label>Nombre completo<input id="registroNombre" type="text" minlength="3" maxlength="100" autocomplete="name" required></label>
+        <label>Correo electrónico<input id="registroEmail" type="email" maxlength="150" autocomplete="email" required></label>
+        <label>Teléfono<input id="registroTelefono" type="tel" maxlength="20" autocomplete="tel" required></label>
+        <label>Contraseña<input id="registroPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" required><small>Mínimo 8 caracteres.</small></label>
+        <p id="errorRegistro" class="msg-error" role="alert" hidden></p>
+        <button class="btn-pagar" type="submit" id="btnRegistro">Crear cuenta</button>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="modalProcesando" class="modal-overlay" hidden>
+    <div class="modal-box"><div class="spinner"></div><h3 id="modalTexto">Enviando pedido...</h3></div>
+  </div>
+</body>
+</html>
